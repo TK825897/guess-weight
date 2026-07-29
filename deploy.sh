@@ -36,25 +36,22 @@ fi
 echo "=== 3. 安装依赖 ==="
 npm install
 
-echo "=== 4. 编译服务器代码 ==="
-npm run build:server
-
-echo "=== 5. 构建前端 ==="
+echo "=== 4. 构建前端 ==="
 npm run build
 
-echo "=== 6. 启动服务 ==="
+echo "=== 5. 启动服务 ==="
 pm2 delete guess-weight 2>/dev/null || true
 pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup | grep "sudo" | bash
 
-echo "=== 7. 配置 Nginx ==="
+echo "=== 6. 配置 Nginx ==="
 sudo cp nginx.conf /etc/nginx/sites-available/guess-weight
 sudo ln -sf /etc/nginx/sites-available/guess-weight /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 
-echo "=== 8. 开放端口 ==="
+echo "=== 7. 开放端口 ==="
 sudo ufw allow 80
 sudo ufw allow 443
 sudo ufw allow 22
