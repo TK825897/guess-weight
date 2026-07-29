@@ -2,9 +2,10 @@ module.exports = {
   apps: [
     {
       name: 'guess-weight',
-      script: './node_modules/.bin/tsx',
-      args: 'server/index.ts',
+      script: 'node',
+      args: '--import tsx/esm server/index.ts',
       cwd: '/home/guess-weight',
+      interpreter: 'none',
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
