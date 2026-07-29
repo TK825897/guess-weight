@@ -40,6 +40,7 @@ echo "=== 4. 构建前端 ==="
 npm run build
 
 echo "=== 5. 启动服务 ==="
+chmod +x start.sh
 pm2 delete guess-weight 2>/dev/null || true
 pm2 start ecosystem.config.cjs
 pm2 save
