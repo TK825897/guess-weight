@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'guess-weight',
-      script: 'npx',
-      args: 'tsx server/index.ts',
+      script: 'node',
+      args: 'dist-server/index.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
