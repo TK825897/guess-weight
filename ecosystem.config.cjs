@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'guess-weight',
-      script: 'bash',
-      args: 'start.sh',
+      script: './node_modules/.bin/tsx',
+      args: 'server/index.ts',
       cwd: '/home/guess-weight',
       env: {
         NODE_ENV: 'production',
