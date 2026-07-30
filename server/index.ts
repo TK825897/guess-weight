@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === 'production') {
   const clientDist = join(process.cwd(), 'dist');
   if (existsSync(clientDist)) {
     app.use(express.static(clientDist));
-    app.get('*', (_req, res) => {
+    app.get('/{*path}', (_req, res) => {
       res.sendFile(join(clientDist, 'index.html'));
     });
   }
