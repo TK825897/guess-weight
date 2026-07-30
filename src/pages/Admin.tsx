@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminLogin, getAdminImages, uploadImage, deleteImage } from '../api';
+import { adminLogin, getAdminImages, uploadImage, deleteImage, changePassword } from '../api';
 
 interface Image {
   id: number;
@@ -17,6 +17,10 @@ export default function Admin() {
   const [correctWeight, setCorrectWeight] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState('');
 
   useEffect(() => {
     if (token) fetchImages();
@@ -71,6 +75,32 @@ export default function Admin() {
       setError('上传失败');
     }
     setLoading(false);
+  };
+
+  const handleChangePassword = async () => {
+    if (!token) return;
+    setPasswordMsg('');
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg('两次输入的新密码不一致');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordMsg('新密码至少需要6个字符');
+      return;
+    }
+    try {
+      const data = await changePassword(token, oldPassword, newPassword);
+      if (data.error) {
+        setPasswordMsg(data.error);
+      } else {
+        setPasswordMsg('密码修改成功');
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      }
+    } catch {
+      setPasswordMsg('修改失败');
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -173,6 +203,49 @@ export default function Admin() {
               className="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50"
             >
               {loading ? '上传中...' : '上传'}
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4">修改密码</h2>
+
+          {passwordMsg && (
+            <div className={`px-4 py-3 rounded-lg mb-4 text-center ${
+              passwordMsg.includes('成功') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+            }`}>
+              {passwordMsg}
+            </div>
+          )}
+
+          <div className="max-w-sm space-y-4">
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              placeholder="旧密码"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="新密码（至少6位）"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="确认新密码"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleChangePassword}
+              disabled={!oldPassword || !newPassword || !confirmPassword}
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50"
+            >
+              修改密码
             </button>
           </div>
         </div>

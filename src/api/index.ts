@@ -57,6 +57,15 @@ export async function uploadImage(token: string, file: File, correctWeight: numb
   return res.json();
 }
 
+export async function changePassword(token: string, oldPassword: string, newPassword: string) {
+  const res = await fetch(`${API_BASE}/auth/change-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ oldPassword, newPassword })
+  });
+  return res.json();
+}
+
 export async function deleteImage(token: string, id: number) {
   const res = await fetch(`${API_BASE}/admin/images/${id}`, {
     method: 'DELETE',
