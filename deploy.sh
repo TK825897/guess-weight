@@ -23,18 +23,27 @@ echo "=== 1. 安装系统依赖 ==="
 sudo apt update
 sudo apt install -y git curl nginx
 
-# 安装 Node.js 20.x（如果版本低于 18）
+# 项目依赖要求 Node.js 22 及以上；低版本统一升级到 22.x LTS
 if command -v node &> /dev/null; then
   NODE_MAJOR=$(node -e "console.log(process.versions.node.split('.')[0])")
-  if [ "$NODE_MAJOR" -lt 18 ]; then
-    echo "Node.js 版本过低 ($(node -v))，升级到 20.x"
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  if [ "$NODE_MAJOR" -lt 22 ]; then
+    echo "Node.js 版本过低 ($(node -v))，升级到 22.x LTS"
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt-get install -y nodejs
+  else
+    echo "Node.js 版本符合要求 ($(node -v))"
   fi
 else
-  echo "安装 Node.js 20.x"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  echo "安装 Node.js 22.x LTS"
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
   sudo apt-get install -y nodejs
+fi
+
+# 防止仓库或包管理器异常导致仍使用旧版本
+NODE_MAJOR=$(node -e "console.log(process.versions.node.split('.')[0])")
+if [ "$NODE_MAJOR" -lt 22 ]; then
+  echo "错误: Node.js 22 及以上版本安装失败，当前版本为 $(node -v)" >&2
+  exit 1
 fi
 
 # 安装 PM2
