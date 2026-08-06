@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { getDb } from '../db/init.js';
+import { requireSession } from '../middleware/session.js';
 
 const router = Router();
 
-router.get('/:userId', (req, res) => {
+router.get('/:userId', requireSession, (req, res) => {
   const { userId } = req.params;
 
   const db = getDb();

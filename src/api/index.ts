@@ -9,22 +9,26 @@ export async function startGame(name?: string, language?: string) {
   return res.json();
 }
 
-export async function getRandomImage(userId: number) {
-  const res = await fetch(`${API_BASE}/random?userId=${userId}`);
+export async function getRandomImage(userId: number, sessionId: string) {
+  const res = await fetch(`${API_BASE}/random?userId=${userId}`, {
+    headers: { 'x-session-id': sessionId }
+  });
   return res.json();
 }
 
-export async function submitGuess(userId: number, imageId: number, guessedWeight: number) {
+export async function submitGuess(userId: number, sessionId: string, imageId: number, guessedWeight: number) {
   const res = await fetch(`${API_BASE}/guess`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
     body: JSON.stringify({ userId, imageId, guessed_weight: guessedWeight })
   });
   return res.json();
 }
 
-export async function getUserStats(userId: number) {
-  const res = await fetch(`${API_BASE}/stats/${userId}`);
+export async function getUserStats(userId: number, sessionId: string) {
+  const res = await fetch(`${API_BASE}/stats/${userId}`, {
+    headers: { 'x-session-id': sessionId }
+  });
   return res.json();
 }
 

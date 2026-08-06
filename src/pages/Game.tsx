@@ -38,6 +38,7 @@ interface Stats {
 
 export default function Game() {
   const [userId, setUserId] = useState<number | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentImage, setCurrentImage] = useState<ImageData | null>(null);
   const [result, setResult] = useState<ResultData | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -46,22 +47,22 @@ export default function Game() {
   const { t, translateApiError } = useI18n();
 
   const fetchStats = useCallback(async () => {
-    if (userId) {
+    if (userId && sessionId) {
       try {
-        const data = await getUserStats(userId);
+        const data = await getUserStats(userId, sessionId);
         setStats(data);
       } catch {
         console.error('Failed to fetch stats');
       }
     }
-  }, [userId]);
+  }, [userId, sessionId]);
 
   const fetchRandomImage = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !sessionId) return;
     setLoading(true);
     setError('');
     try {
-      const data = await getRandomImage(userId);
+      const data = await getRandomImage(userId, sessionId);
       if (data.allGuessed) {
         setError('game.allGuessed');
         setCurrentImage(null);
@@ -73,24 +74,25 @@ export default function Game() {
       setError('game.imageError');
     }
     setLoading(false);
-  }, [userId]);
+  }, [userId, sessionId]);
 
   useEffect(() => {
-    if (userId) {
+    if (userId && sessionId) {
       fetchRandomImage();
       fetchStats();
     }
-  }, [userId, fetchRandomImage, fetchStats]);
+  }, [userId, sessionId, fetchRandomImage, fetchStats]);
 
-  const handleGameStart = (id: number) => {
+  const handleGameStart = (id: number, session: string) => {
     setUserId(id);
+    setSessionId(session);
   };
 
   const handleGuess = async (weight: number) => {
-    if (!userId || !currentImage) return;
+    if (!userId || !sessionId || !currentImage) return;
     setLoading(true);
     try {
-      const data = await submitGuess(userId, currentImage.id, weight);
+      const data = await submitGuess(userId, sessionId, currentImage.id, weight);
       if (data.error) {
         alert(translateApiError(data.error));
       } else {

@@ -2,10 +2,12 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { getDb } from '../db/init.js';
 import { generateToken, authMiddleware } from '../middleware/auth.js';
+import { rateLimit } from '../middleware/rateLimit.js';
 
 const router = Router();
 
-router.post('/login', (req, res) => {
+// 登录接口限流：同一 IP 15 分钟最多 20 次尝试，防暴力破解
+router.post('/login', rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }), (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

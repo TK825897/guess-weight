@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { getDb } from '../db/init.js';
 import { generateRandomName } from '../utils/nameGenerator.js';
+import { requireSession } from '../middleware/session.js';
+import { rateLimit } from '../middleware/rateLimit.js';
 
 const router = Router();
 
@@ -35,7 +37,7 @@ router.post('/start', (req, res) => {
   });
 });
 
-router.get('/random', (req, res) => {
+router.get('/random', requireSession, (req, res) => {
   const userId = req.query.userId as string;
 
   if (!userId) {
@@ -72,7 +74,7 @@ router.get('/random', (req, res) => {
   });
 });
 
-router.post('/guess', (req, res) => {
+router.post('/guess', rateLimit({ windowMs: 60 * 1000, max: 60 }), requireSession, (req, res) => {
   const { userId, imageId, guessed_weight } = req.body;
 
   if (!userId || !imageId || guessed_weight === undefined) {

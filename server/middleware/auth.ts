@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'guess-weight-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || '';
+if (!JWT_SECRET) {
+  throw new Error('缺少 JWT_SECRET 环境变量，请参考 README 设置强随机密钥后再启动服务');
+}
 
 export interface AdminPayload {
   id: number;

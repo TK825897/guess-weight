@@ -5,7 +5,7 @@ import { useI18n } from '../i18n';
 import { generateRandomName } from '../utils/nameGenerator';
 
 interface NameInputProps {
-  onGameStart: (userId: number, name: string) => void;
+  onGameStart: (userId: number, sessionId: string, name: string) => void;
 }
 
 export default function NameInput({ onGameStart }: NameInputProps) {
@@ -17,7 +17,7 @@ export default function NameInput({ onGameStart }: NameInputProps) {
     setLoading(true);
     try {
       const data = await startGame(inputName || name, language);
-      onGameStart(data.userId, data.name);
+      onGameStart(data.userId, data.sessionId, data.name);
     } catch {
       alert(t('name.error'));
     }

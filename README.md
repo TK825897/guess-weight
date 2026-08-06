@@ -63,11 +63,9 @@ sudo certbot --nginx -d your-domain.com
 
 ### 管理员账号
 
-首次启动自动创建默认管理员：
-- 用户名: `admin`
-- 密码: `admin123`
+首次部署时，部署脚本会交互式要求设置管理员用户名和密码（密码至少 8 位），并以 bcrypt 哈希形式保存在服务器本地 `.env` 文件中（已 gitignore，不会提交到仓库）。不再存在默认密码。
 
-登录后台: `https://your-domain.com/admin`
+如果数据库中已存在管理员账号，部署脚本会自动跳过设置。
 
 ## 项目结构
 
