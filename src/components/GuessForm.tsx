@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../i18n';
 
 interface GuessFormProps {
   onSubmit: (weight: number) => void;
@@ -7,6 +8,7 @@ interface GuessFormProps {
 
 export default function GuessForm({ onSubmit, disabled }: GuessFormProps) {
   const [weight, setWeight] = useState('');
+  const { t } = useI18n();
 
   const handleSubmit = () => {
     const num = parseFloat(weight);
@@ -18,7 +20,7 @@ export default function GuessForm({ onSubmit, disabled }: GuessFormProps) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">你觉得它有多重？</h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">{t('guess.question')}</h3>
 
       <div className="flex gap-3">
         <div className="flex-1 relative">
@@ -26,7 +28,7 @@ export default function GuessForm({ onSubmit, disabled }: GuessFormProps) {
             type="number"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            placeholder="输入重量"
+            placeholder={t('guess.placeholder')}
             step="0.1"
             min="0"
             disabled={disabled}
@@ -42,7 +44,7 @@ export default function GuessForm({ onSubmit, disabled }: GuessFormProps) {
           disabled={disabled || !weight}
           className="px-8 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 transition"
         >
-          确认
+          {t('guess.confirm')}
         </button>
       </div>
     </div>

@@ -5,6 +5,8 @@ import GuessForm from '../components/GuessForm';
 import ResultCard from '../components/ResultCard';
 import Sidebar from '../components/Sidebar';
 import { getRandomImage, submitGuess, getUserStats } from '../api';
+import LanguageSelector from '../components/LanguageSelector';
+import { useI18n } from '../i18n';
 
 interface ImageData {
   id: number;
@@ -36,12 +38,12 @@ interface Stats {
 
 export default function Game() {
   const [userId, setUserId] = useState<number | null>(null);
-  const [userName, setUserName] = useState<string>('');
   const [currentImage, setCurrentImage] = useState<ImageData | null>(null);
   const [result, setResult] = useState<ResultData | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t, translateApiError } = useI18n();
 
   const fetchStats = useCallback(async () => {
     if (userId) {
@@ -61,14 +63,14 @@ export default function Game() {
     try {
       const data = await getRandomImage(userId);
       if (data.allGuessed) {
-        setError(data.message);
+        setError('game.allGuessed');
         setCurrentImage(null);
       } else {
         setCurrentImage(data);
         setResult(null);
       }
     } catch {
-      setError('获取图片失败，请重试');
+      setError('game.imageError');
     }
     setLoading(false);
   }, [userId]);
@@ -80,9 +82,8 @@ export default function Game() {
     }
   }, [userId, fetchRandomImage, fetchStats]);
 
-  const handleGameStart = (id: number, name: string) => {
+  const handleGameStart = (id: number) => {
     setUserId(id);
-    setUserName(name);
   };
 
   const handleGuess = async (weight: number) => {
@@ -91,13 +92,13 @@ export default function Game() {
     try {
       const data = await submitGuess(userId, currentImage.id, weight);
       if (data.error) {
-        alert(data.error);
+        alert(translateApiError(data.error));
       } else {
         setResult(data);
         fetchStats();
       }
     } catch {
-      alert('提交失败，请重试');
+      alert(t('game.submitError'));
     }
     setLoading(false);
   };
@@ -114,8 +115,11 @@ export default function Game() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">猜重量游戏</h1>
-          <a href="/admin" className="text-sm text-gray-400 hover:text-gray-600">管理后台</a>
+          <h1 className="text-2xl font-bold text-gray-800">{t('game.title')}</h1>
+          <div className="flex items-center gap-4">
+            <LanguageSelector />
+            <a href="/admin" className="text-sm text-gray-400 hover:text-gray-600">{t('game.admin')}</a>
+          </div>
         </div>
       </header>
 
@@ -124,7 +128,7 @@ export default function Game() {
           <div className="flex-1 space-y-6">
             {error && (
               <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-6 py-4 rounded-xl text-center">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -142,7 +146,7 @@ export default function Game() {
             {loading && !currentImage && (
               <div className="text-center py-12">
                 <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-gray-500">加载中...</p>
+                <p className="mt-4 text-gray-500">{t('game.loading')}</p>
               </div>
             )}
           </div>

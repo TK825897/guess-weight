@@ -5,8 +5,8 @@ import { generateRandomName } from '../utils/nameGenerator.js';
 const router = Router();
 
 router.post('/start', (req, res) => {
-  const { name } = req.body;
-  const userName = name || generateRandomName();
+  const { name, language } = req.body;
+  const userName = name || generateRandomName(language);
   const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
   const db = getDb();

@@ -1,10 +1,10 @@
 const API_BASE = '/api';
 
-export async function startGame(name?: string) {
+export async function startGame(name?: string, language?: string) {
   const res = await fetch(`${API_BASE}/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
+    body: JSON.stringify({ name, language })
   });
   return res.json();
 }

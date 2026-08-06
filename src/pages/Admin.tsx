@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminLogin, getAdminImages, uploadImage, deleteImage, changePassword } from '../api';
+import LanguageSelector from '../components/LanguageSelector';
+import { useI18n } from '../i18n';
 
 interface Image {
   id: number;
@@ -21,6 +23,8 @@ export default function Admin() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const { t, translateApiError } = useI18n();
 
   useEffect(() => {
     if (token) fetchImages();
@@ -30,6 +34,11 @@ export default function Admin() {
     if (!token) return;
     try {
       const data = await getAdminImages(token);
+      // 登录过期时接口返回错误对象而不是数组，直接渲染会导致 images.map 报错并出现白屏。
+      if (!Array.isArray(data)) {
+        handleLogout();
+        return;
+      }
       setImages(data);
     } catch {
       handleLogout();
@@ -42,13 +51,13 @@ export default function Admin() {
     try {
       const data = await adminLogin(username, password);
       if (data.error) {
-        setError(data.error);
+        setError(translateApiError(data.error));
       } else {
         localStorage.setItem('admin_token', data.token);
         setToken(data.token);
       }
     } catch {
-      setError('登录失败');
+      setError(t('admin.loginError'));
     }
     setLoading(false);
   };
@@ -65,14 +74,14 @@ export default function Admin() {
     try {
       const data = await uploadImage(token, uploadFile, parseFloat(correctWeight));
       if (data.error) {
-        setError(data.error);
+        setError(translateApiError(data.error));
       } else {
         setUploadFile(null);
         setCorrectWeight('');
         fetchImages();
       }
     } catch {
-      setError('上传失败');
+      setError(t('admin.uploadError'));
     }
     setLoading(false);
   };
@@ -80,36 +89,38 @@ export default function Admin() {
   const handleChangePassword = async () => {
     if (!token) return;
     setPasswordMsg('');
+    setPasswordSuccess(false);
     if (newPassword !== confirmPassword) {
-      setPasswordMsg('两次输入的新密码不一致');
+      setPasswordMsg(t('admin.passwordMismatch'));
       return;
     }
     if (newPassword.length < 6) {
-      setPasswordMsg('新密码至少需要6个字符');
+      setPasswordMsg(t('admin.passwordTooShort'));
       return;
     }
     try {
       const data = await changePassword(token, oldPassword, newPassword);
       if (data.error) {
-        setPasswordMsg(data.error);
+        setPasswordMsg(translateApiError(data.error));
       } else {
-        setPasswordMsg('密码修改成功');
+        setPasswordMsg(t('admin.passwordSuccess'));
+        setPasswordSuccess(true);
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
       }
     } catch {
-      setPasswordMsg('修改失败');
+      setPasswordMsg(t('admin.passwordError'));
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!token || !confirm('确定删除这张图片？')) return;
+    if (!token || !confirm(t('admin.deleteConfirm'))) return;
     try {
       await deleteImage(token, id);
       fetchImages();
     } catch {
-      setError('删除失败');
+      setError(t('admin.deleteError'));
     }
   };
 
@@ -117,7 +128,8 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-          <h2 className="text-2xl font-bold text-center mb-6">管理员登录</h2>
+          <div className="flex justify-end mb-4"><LanguageSelector /></div>
+          <h2 className="text-2xl font-bold text-center mb-6">{t('admin.loginTitle')}</h2>
 
           {error && (
             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-center">
@@ -130,14 +142,14 @@ export default function Admin() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="用户名"
+              placeholder={t('admin.username')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="密码"
+              placeholder={t('admin.password')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
@@ -146,7 +158,7 @@ export default function Admin() {
               disabled={loading}
               className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50"
             >
-              {loading ? '登录中...' : '登录'}
+              {loading ? t('admin.loggingIn') : t('admin.login')}
             </button>
           </div>
         </div>
@@ -158,17 +170,18 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">管理后台</h1>
-          <div className="flex gap-4">
-            <a href="/" className="text-gray-500 hover:text-gray-700">返回游戏</a>
-            <button onClick={handleLogout} className="text-red-500 hover:text-red-700">退出登录</button>
+          <h1 className="text-2xl font-bold text-gray-800">{t('admin.title')}</h1>
+          <div className="flex items-center gap-4">
+            <LanguageSelector />
+            <a href="/" className="text-gray-500 hover:text-gray-700">{t('admin.back')}</a>
+            <button onClick={handleLogout} className="text-red-500 hover:text-red-700">{t('admin.logout')}</button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">上传图片</h2>
+          <h2 className="text-xl font-bold mb-4">{t('admin.uploadTitle')}</h2>
 
           {error && (
             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-center">
@@ -178,7 +191,7 @@ export default function Admin() {
 
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <label className="block text-sm text-gray-600 mb-2">选择图片 (jpg/png, 最大5MB)</label>
+              <label className="block text-sm text-gray-600 mb-2">{t('admin.chooseImage')}</label>
               <input
                 type="file"
                 accept=".jpg,.jpeg,.png"
@@ -187,7 +200,7 @@ export default function Admin() {
               />
             </div>
             <div className="w-40">
-              <label className="block text-sm text-gray-600 mb-2">正确重量 (kg)</label>
+              <label className="block text-sm text-gray-600 mb-2">{t('admin.correctWeight')}</label>
               <input
                 type="number"
                 step="0.1"
@@ -202,17 +215,17 @@ export default function Admin() {
               disabled={loading || !uploadFile || !correctWeight}
               className="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50"
             >
-              {loading ? '上传中...' : '上传'}
+              {loading ? t('admin.uploading') : t('admin.upload')}
             </button>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">修改密码</h2>
+          <h2 className="text-xl font-bold mb-4">{t('admin.passwordTitle')}</h2>
 
           {passwordMsg && (
             <div className={`px-4 py-3 rounded-lg mb-4 text-center ${
-              passwordMsg.includes('成功') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+              passwordSuccess ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
             }`}>
               {passwordMsg}
             </div>
@@ -223,21 +236,21 @@ export default function Admin() {
               type="password"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
-              placeholder="旧密码"
+              placeholder={t('admin.oldPassword')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="新密码（至少6位）"
+              placeholder={t('admin.newPassword')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="确认新密码"
+              placeholder={t('admin.confirmPassword')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -245,13 +258,13 @@ export default function Admin() {
               disabled={!oldPassword || !newPassword || !confirmPassword}
               className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50"
             >
-              修改密码
+              {t('admin.passwordTitle')}
             </button>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4">图片列表 ({images.length} 张)</h2>
+          <h2 className="text-xl font-bold mb-4">{t('admin.imageList', { count: images.length })}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {images.map((img) => (
@@ -269,7 +282,7 @@ export default function Admin() {
                     onClick={() => handleDelete(img.id)}
                     className="text-red-500 hover:text-red-700 text-sm"
                   >
-                    删除
+                    {t('admin.delete')}
                   </button>
                 </div>
               </div>

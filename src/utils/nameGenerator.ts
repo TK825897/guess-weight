@@ -1,4 +1,4 @@
-type Language = 'zh' | 'en' | 'ja';
+import type { Language } from '../i18n';
 
 const words: Record<Language, { adjectives: string[]; nouns: string[] }> = {
   zh: {
@@ -15,8 +15,8 @@ const words: Record<Language, { adjectives: string[]; nouns: string[] }> = {
   },
 };
 
-export function generateRandomName(language: string = 'zh'): string {
-  const selected = words[language as Language] ?? words.zh;
+export function generateRandomName(language: Language): string {
+  const selected = words[language];
   const adjective = selected.adjectives[Math.floor(Math.random() * selected.adjectives.length)];
   const noun = selected.nouns[Math.floor(Math.random() * selected.nouns.length)];
   const number = Math.floor(Math.random() * 1000);
