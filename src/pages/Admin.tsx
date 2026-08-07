@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminLogin, getAdminImages, uploadImage, deleteImage, changePassword } from '../api';
 import LanguageSelector from '../components/LanguageSelector';
+import ImageCropper from '../components/ImageCropper';
 import { useI18n } from '../i18n';
 
 interface Image {
@@ -16,6 +17,7 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [images, setImages] = useState<Image[]>([]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [correctWeight, setCorrectWeight] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -66,6 +68,17 @@ export default function Admin() {
     localStorage.removeItem('admin_token');
     setToken(null);
     setImages([]);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] || null;
+    setUploadFile(null);
+    setCropFile(f);
+  };
+
+  const handleCropConfirm = (file: File) => {
+    setCropFile(null);
+    setUploadFile(file);
   };
 
   const handleUpload = async () => {
@@ -195,9 +208,14 @@ export default function Admin() {
               <input
                 type="file"
                 accept=".jpg,.jpeg,.png"
-                onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                onChange={handleFileSelect}
                 className="w-full"
               />
+              {uploadFile && (
+                <p className="mt-2 text-sm text-green-600">
+                  {t('crop.done', { size: 1024 })} ({uploadFile.name})
+                </p>
+              )}
             </div>
             <div className="w-40">
               <label className="block text-sm text-gray-600 mb-2">{t('admin.correctWeight')}</label>
@@ -290,6 +308,14 @@ export default function Admin() {
           </div>
         </div>
       </main>
+      {cropFile && (
+        <ImageCropper
+          file={cropFile}
+          targetSize={1024}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
     </div>
   );
 }

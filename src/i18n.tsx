@@ -28,6 +28,9 @@ const messages: Record<Language, Messages> = {
     'admin.confirmPassword': '确认新密码', 'admin.passwordMismatch': '两次输入的新密码不一致',
     'admin.passwordTooShort': '新密码至少需要6个字符', 'admin.passwordSuccess': '密码修改成功', 'admin.passwordError': '修改失败',
     'admin.imageList': '图片列表（{{count}} 张）', 'admin.delete': '删除', 'admin.deleteConfirm': '确定删除这张图片？', 'admin.deleteError': '删除失败',
+    'crop.title': '裁剪图片', 'crop.hint': '拖动裁剪框选择要保留的正方形区域，拖动右下角调整大小',
+    'crop.confirm': '确认裁剪', 'crop.cancel': '取消', 'crop.processing': '处理中...', 'crop.error': '裁剪失败，请重试',
+    'crop.output': '输出尺寸：{{size}}×{{size}}', 'crop.done': '已裁剪为 {{size}}×{{size}} 正方形',
   },
   en: {
     'language.label': 'Language',
@@ -52,6 +55,9 @@ const messages: Record<Language, Messages> = {
     'admin.confirmPassword': 'Confirm new password', 'admin.passwordMismatch': 'The new passwords do not match',
     'admin.passwordTooShort': 'The new password must be at least 6 characters', 'admin.passwordSuccess': 'Password changed successfully', 'admin.passwordError': 'Password change failed',
     'admin.imageList': 'Images ({{count}})', 'admin.delete': 'Delete', 'admin.deleteConfirm': 'Delete this image?', 'admin.deleteError': 'Delete failed',
+    'crop.title': 'Crop Image', 'crop.hint': 'Drag the crop box to keep a square area; drag the bottom-right corner to resize',
+    'crop.confirm': 'Crop & Confirm', 'crop.cancel': 'Cancel', 'crop.processing': 'Processing...', 'crop.error': 'Crop failed, please try again',
+    'crop.output': 'Output size: {{size}}×{{size}}', 'crop.done': 'Cropped to {{size}}×{{size}} square',
   },
   ja: {
     'language.label': '言語',
@@ -76,6 +82,9 @@ const messages: Record<Language, Messages> = {
     'admin.confirmPassword': '新しいパスワードを確認', 'admin.passwordMismatch': '新しいパスワードが一致しません',
     'admin.passwordTooShort': '新しいパスワードは6文字以上必要です', 'admin.passwordSuccess': 'パスワードを変更しました', 'admin.passwordError': '変更に失敗しました',
     'admin.imageList': '画像一覧（{{count}}枚）', 'admin.delete': '削除', 'admin.deleteConfirm': 'この画像を削除しますか？', 'admin.deleteError': '削除に失敗しました',
+    'crop.title': '画像を切り取る', 'crop.hint': '切り取り枠をドラッグして正方形の範囲を選択し、右下角で大きさを調整します',
+    'crop.confirm': '切り取って確定', 'crop.cancel': 'キャンセル', 'crop.processing': '処理中...', 'crop.error': '切り取りに失敗しました。もう一度お試しください',
+    'crop.output': '出力サイズ：{{size}}×{{size}}', 'crop.done': '{{size}}×{{size}} の正方形に切り取りました',
   },
 };
 
@@ -87,6 +96,7 @@ const apiErrorKeys: Record<string, string> = {
   '请输入正确的重量数值': 'api.weightRequired', '未授权，请先登录': 'api.unauthorized',
   'Token 无效或已过期': 'api.tokenInvalid', '图片不存在': 'api.imageMissing',
   '缺少必要参数': 'api.missingParameters', '你已经猜过这张图片了': 'api.alreadyGuessed',
+  '该名称已被使用，请更换一个名称': 'api.nameTaken',
 };
 
 Object.assign(messages.zh, {
@@ -94,18 +104,21 @@ Object.assign(messages.zh, {
   'api.adminMissing': '管理员不存在', 'api.oldPasswordWrong': '旧密码错误', 'api.imageFormat': '仅支持 jpg 和 png 格式',
   'api.imageRequired': '请上传图片', 'api.weightRequired': '请输入正确的重量数值', 'api.unauthorized': '未授权，请先登录',
   'api.tokenInvalid': '登录已过期，请重新登录', 'api.imageMissing': '图片不存在', 'api.missingParameters': '缺少必要参数', 'api.alreadyGuessed': '你已经猜过这张图片了',
+  'api.nameTaken': '该名称已被使用，请更换一个名称',
 });
 Object.assign(messages.en, {
   'api.credentialsRequired': 'Enter a username and password', 'api.invalidCredentials': 'Incorrect username or password', 'api.passwordsRequired': 'Enter the current and new passwords',
   'api.adminMissing': 'Administrator not found', 'api.oldPasswordWrong': 'Current password is incorrect', 'api.imageFormat': 'Only jpg and png images are supported',
   'api.imageRequired': 'Select an image', 'api.weightRequired': 'Enter a valid weight', 'api.unauthorized': 'Please log in first',
   'api.tokenInvalid': 'Your session has expired. Please log in again', 'api.imageMissing': 'Image not found', 'api.missingParameters': 'Required information is missing', 'api.alreadyGuessed': 'You have already guessed this image',
+  'api.nameTaken': 'This username is already taken, please choose another one',
 });
 Object.assign(messages.ja, {
   'api.credentialsRequired': 'ユーザー名とパスワードを入力してください', 'api.invalidCredentials': 'ユーザー名またはパスワードが違います', 'api.passwordsRequired': '現在と新しいパスワードを入力してください',
   'api.adminMissing': '管理者が見つかりません', 'api.oldPasswordWrong': '現在のパスワードが違います', 'api.imageFormat': 'jpg と png 画像のみ対応しています',
   'api.imageRequired': '画像を選択してください', 'api.weightRequired': '正しい重さを入力してください', 'api.unauthorized': '先にログインしてください',
   'api.tokenInvalid': 'セッションが期限切れです。再度ログインしてください', 'api.imageMissing': '画像が見つかりません', 'api.missingParameters': '必要な情報がありません', 'api.alreadyGuessed': 'この画像にはすでに回答済みです',
+  'api.nameTaken': 'この名前はすでに使用されています。別の名前を選んでください',
 });
 
 type I18nValue = { language: Language; setLanguage: (language: Language) => void; t: (key: string, values?: Record<string, string | number>) => string; translateApiError: (message: string) => string };

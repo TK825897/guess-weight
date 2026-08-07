@@ -8,23 +8,29 @@ const router = Router();
 
 router.post('/start', (req, res) => {
   const { name, language } = req.body;
-  const userName = name || generateRandomName(language);
   const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
   const db = getDb();
 
-  let existingUser = null;
+  // 手动输入名称：查重，重复则明确报错要求更换
   if (name) {
-    existingUser = db.prepare('SELECT * FROM users WHERE name = ?').get(name) as any;
+    const exists = db.prepare('SELECT id FROM users WHERE name = ?').get(name);
+    if (exists) {
+      res.status(400).json({ error: '该名称已被使用，请更换一个名称' });
+      return;
+    }
+    const result = db.prepare('INSERT INTO users (name, session_id) VALUES (?, ?)')
+      .run(name, sessionId);
+    res.json({ userId: result.lastInsertRowid, name, sessionId });
+    return;
   }
 
-  if (existingUser) {
-    res.json({
-      userId: existingUser.id,
-      name: existingUser.name,
-      sessionId: existingUser.session_id
-    });
-    return;
+  // 随机名称：重新生成直到不与已有名称重复（限制尝试次数兜底）
+  let userName = generateRandomName(language);
+  let attempts = 0;
+  while (db.prepare('SELECT id FROM users WHERE name = ?').get(userName) && attempts < 50) {
+    userName = generateRandomName(language);
+    attempts++;
   }
 
   const result = db.prepare('INSERT INTO users (name, session_id) VALUES (?, ?)')
